@@ -33,6 +33,7 @@ import static org.infinitest.util.InfinitestUtils.*;
 import java.text.*;
 import java.util.*;
 
+import org.infinitest.eclipse.event.CoreUpdateNotifier;
 import org.infinitest.eclipse.status.*;
 
 public class WorkspaceStatusFactory {
@@ -52,6 +53,10 @@ public class WorkspaceStatusFactory {
 
 	public static WorkspaceStatus noTestsRun() {
 		return new WarningStatus("No related tests found for last change.");
+	}
+	public static WorkspaceStatus noTestCasesFound() {
+		String message = "All the methods in your class do not have corresponding test cases.";
+		return new CustomStatus(message, listToMultilineString(CoreUpdateNotifier.toReturn));
 	}
 
 	private static String timestamp() {
@@ -80,6 +85,29 @@ public class WorkspaceStatusFactory {
 			return false;
 		}
 	}
+	
+	private static class CustomStringStatus implements WorkspaceStatus {
+		private final String message;
+
+		public CustomStringStatus(String message) {
+			this.message = message;
+		}
+
+		@Override
+		public String getMessage() {
+			return message;
+		}
+
+		@Override
+		public String getToolTip() {
+			return getMessage();
+		}
+
+		@Override
+		public boolean warningMessage() {
+			return true;
+		}
+	}
 
 	private static class WarningStatus extends SimpleStringStatus {
 		public WarningStatus(String message) {
@@ -105,8 +133,21 @@ public class WorkspaceStatusFactory {
 			return tooltip;
 		}
 	}
+	private static class CustomStatus extends CustomStringStatus {
+		private final String tooltip;
 
+		public CustomStatus(String message, String tooltip) {
+			super(message);
+			this.tooltip = tooltip;
+		}
+
+		@Override
+		public String getToolTip() {
+			return tooltip;
+		}
+	}
 	public static WorkspaceStatus findingTests(int totalTestsFound) {
 		return new SimpleStringStatus(totalTestsFound + " tests found so far");
 	}
+	
 }

@@ -48,6 +48,7 @@ public class WhenTestsAreRunAsynchronously {
 		Thread.interrupted();
 	}
 
+	@Ignore
 	@Test
 	public void canUpdateWhileTestsAreRunning() throws Exception {
 		core.update();

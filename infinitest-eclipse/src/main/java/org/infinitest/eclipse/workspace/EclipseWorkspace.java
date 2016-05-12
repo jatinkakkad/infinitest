@@ -27,22 +27,30 @@
  */
 package org.infinitest.eclipse.workspace;
 
-import static com.google.common.collect.Lists.*;
-import static org.infinitest.eclipse.InfinitestCoreClasspath.*;
-import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.*;
-import static org.infinitest.util.Events.*;
-import static org.infinitest.util.InfinitestUtils.*;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.infinitest.eclipse.InfinitestCoreClasspath.getCoreJarLocation;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.findingTests;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.noTestCasesFound;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.noTestsRun;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.workspaceErrors;
+import static org.infinitest.util.Events.eventFor;
+import static org.infinitest.util.InfinitestUtils.log;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
-import org.eclipse.core.runtime.*;
-import org.infinitest.*;
-import org.infinitest.eclipse.*;
-import org.infinitest.eclipse.status.*;
-import org.infinitest.util.*;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.stereotype.*;
+import org.eclipse.core.runtime.CoreException;
+import org.infinitest.InfinitestCore;
+import org.infinitest.RuntimeEnvironment;
+import org.infinitest.eclipse.InfinitestPlugin;
+import org.infinitest.eclipse.UpdateListener;
+import org.infinitest.eclipse.event.CoreUpdateNotifier;
+import org.infinitest.eclipse.status.WorkspaceStatus;
+import org.infinitest.eclipse.status.WorkspaceStatusListener;
+import org.infinitest.util.Events;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 class EclipseWorkspace implements WorkspaceFacade {
@@ -71,8 +79,12 @@ class EclipseWorkspace implements WorkspaceFacade {
 			setStatus(workspaceErrors());
 		} else {
 			int numberOfTestsToRun = updateProjectsIn(projectSet);
+			System.out.println("CoreUpdateNotifier.globalFlag:"+CoreUpdateNotifier.globalFlag);
 			if (numberOfTestsToRun == 0) {
 				setStatus(noTestsRun());
+			}
+			if(CoreUpdateNotifier.globalFlag){
+				setStatus(noTestCasesFound());
 			}
 		}
 	}

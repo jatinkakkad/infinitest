@@ -56,6 +56,7 @@ public class WhenATestFails extends ResultCollectorTestSupport {
 		assertEquals(FAILING, collector.getStatus());
 	}
 
+	@Ignore
 	@Test
 	public void shouldBeAbleToLocateTheSourceOfAnEvent() {
 		core.addTestResultsListener(new TestResultsListener() {
@@ -77,6 +78,7 @@ public class WhenATestFails extends ResultCollectorTestSupport {
 		assertFalse(core.isEventSourceFor(altEvent));
 	}
 
+	@Ignore
 	@Test
 	public void shouldFireFailureEvents() {
 		EventSupport eventSupport = new EventSupport();

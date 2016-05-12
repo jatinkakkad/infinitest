@@ -27,34 +27,52 @@
  */
 package org.infinitest.eclipse.trim;
 
-import static com.google.common.collect.Sets.*;
-import static org.eclipse.swt.SWT.*;
-import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.*;
+import static com.google.common.collect.Sets.newLinkedHashSet;
+import static org.eclipse.swt.SWT.COLOR_BLACK;
+import static org.eclipse.swt.SWT.COLOR_DARK_GREEN;
+import static org.eclipse.swt.SWT.COLOR_DARK_RED;
+import static org.eclipse.swt.SWT.COLOR_WHITE;
+import static org.eclipse.swt.SWT.COLOR_YELLOW;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.noTestCasesFound;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.runningTests;
+import static org.infinitest.eclipse.workspace.WorkspaceStatusFactory.testRunFinished;
 
-import java.util.*;
+import java.util.Set;
 
-import org.infinitest.*;
-import org.infinitest.eclipse.status.*;
-import org.infinitest.testrunner.*;
-import org.springframework.stereotype.*;
+import org.infinitest.CoreStatus;
+import org.infinitest.TestQueueAdapter;
+import org.infinitest.TestQueueEvent;
+import org.infinitest.eclipse.event.CoreUpdateNotifier;
+import org.infinitest.eclipse.status.WorkspaceStatus;
+import org.infinitest.testrunner.TestCaseEvent;
+import org.infinitest.testrunner.TestEvent;
+import org.springframework.stereotype.Component;
 
 @Component
-public class VisualStatusPresenter extends TestQueueAdapter implements VisualStatusRegistry {
+public class VisualStatusPresenter extends TestQueueAdapter implements
+		VisualStatusRegistry {
 	private VisualStatus status;
 	private final Set<String> testsRan = newLinkedHashSet();
 
 	@Override
 	public void testQueueUpdated(TestQueueEvent event) {
+		if(CoreUpdateNotifier.globalFlag){
+			statusChanged(noTestCasesFound());
+			return;
+		}
 		if (!event.getTestQueue().isEmpty()) {
-			statusChanged(runningTests(event.getTestQueue().size(), event.getCurrentTest()));
+			statusChanged(runningTests(event.getTestQueue().size(),
+					event.getCurrentTest()));
 		} else {
 			statusChanged(testRunFinished(testsRan));
+
 		}
 	}
 
 	@Override
 	public void coreStatusChanged(CoreStatus oldStatus, CoreStatus newStatus) {
-		switch (newStatus) {
+		if(!CoreUpdateNotifier.globalFlag){
+			switch (newStatus) {
 			case PASSING:
 				status.setBackgroundColor(COLOR_DARK_GREEN);
 				status.setTextColor(COLOR_WHITE);
@@ -64,7 +82,9 @@ public class VisualStatusPresenter extends TestQueueAdapter implements VisualSta
 				break;
 			default:
 				break;
+			}
 		}
+		
 	}
 
 	private void setFailingColors() {
@@ -108,4 +128,5 @@ public class VisualStatusPresenter extends TestQueueAdapter implements VisualSta
 			status.setTextColor(COLOR_BLACK);
 		}
 	}
+
 }

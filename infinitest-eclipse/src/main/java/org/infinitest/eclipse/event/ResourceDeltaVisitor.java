@@ -25,28 +25,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.infinitest;
+package org.infinitest.eclipse.event;
+import java.util.ArrayList;
 
-import static org.infinitest.CoreDependencySupport.*;
-import static org.junit.Assert.*;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 
-import org.junit.*;
+public class ResourceDeltaVisitor implements IResourceDeltaVisitor {
 
-public class WhenATestPasses {
-	@Ignore
-	@Test
-	public void shouldFireSuccessEvents() {
-		ControlledEventQueue eventQueue = new ControlledEventQueue();
-		DefaultInfinitestCore core = createCore(withChangedFiles(), withTests(PASSING_TEST), eventQueue);
-		ResultCollector collector = new ResultCollector(core);
-		EventSupport testStatus = new EventSupport();
-		core.addTestResultsListener(testStatus);
+    private ArrayList<IResource> changedClasses = new ArrayList<IResource>();
 
-		core.update();
-		eventQueue.flush();
+    public boolean visit(IResourceDelta delta) {
+        IResource res = delta.getResource();
+        if(res.getName().endsWith(".java")) {
+            addResource(res);
+        }
+        return true; // visit the children
+    }
 
-		testStatus.assertTestsStarted(PASSING_TEST);
-		testStatus.assertTestPassed(PASSING_TEST);
-		assertFalse(collector.hasFailures());
-	}
+    public ArrayList<IResource> getChangedResources() {
+        return changedClasses;
+    }
+
+    private void addResource(IResource res) {
+        changedClasses.add(res);
+    }
 }

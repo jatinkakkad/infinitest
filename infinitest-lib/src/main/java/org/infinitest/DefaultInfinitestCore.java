@@ -235,6 +235,7 @@ class DefaultInfinitestCore implements InfinitestCore {
 	private List<String> classesToNames(Collection<JavaClass> classes) {
 		List<String> tests = newArrayList();
 		for (JavaClass javaClass : classes) {
+			System.out.println("I am here:"+javaClass.getClassFile().getName());
 			tests.add(javaClass.getName());
 		}
 		return tests;
